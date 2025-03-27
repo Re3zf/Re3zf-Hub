@@ -16,13 +16,13 @@ end
 local Atlas = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/Re3zf-Hub/refs/heads/main/UI%20Library"))()
 
 local UI = Atlas.new({
-    Name = "Re3zf Hub",
+    Name = "3zf Hub",
     ConfigFolder = "MyScript",
     Credit = "Made By Re3zf",
     Color = Color3.fromRGB(255, 0, 0),
     Bind = "RightShift",
     UseLoader = true,
-    FullName = "Re3zf Hub",
+    FullName = "3zf Hub",
     CheckKey = function(inputtedKey)
         return inputtedKey == "."
     end,
