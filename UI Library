@@ -1200,7 +1200,7 @@ do
             Converted["_UI_Library"].Name = "UI_Library"
             Converted["_UI_Library"].Parent = Converted["_Atlas"]
 
-            Converted["_Name"].Value = "Re3zf UI Library"
+            Converted["_Name"].Value = "3zf UI Library"
             Converted["_Name"].Name = "Name"
             Converted["_Name"].Parent = Converted["_UI_Library"]
 
