@@ -1,5 +1,5 @@
 if (game.PlaceId == 91797414023830) then
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/Re3zf-Hub/refs/heads/main/Ghoul-Re"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/3zf-Hub/refs/heads/main/Ghoul-Re"))()
 else
 
 local Re3zf_Hub = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/3zf-Hub/refs/heads/main/UI%20Library"))()
