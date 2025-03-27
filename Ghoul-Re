@@ -13,7 +13,7 @@ if getgenv().AtlasUI then
     getgenv().AtlasUI:Destroy()
 end
 
-local Atlas = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/Re3zf-Hub/refs/heads/main/UI%20Library"))()
+local Atlas = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/3zf-Hub/refs/heads/main/UI%20Library"))()
 
 local UI = Atlas.new({
     Name = "3zf Hub",
