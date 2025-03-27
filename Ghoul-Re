@@ -1,0 +1,497 @@
+if getgenv().AtlasUI then
+    getgenv().AtlasUI:Destroy()
+end
+
+local Atlas = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/Re3zf-Hub/refs/heads/main/UI%20Library"))()
+
+local UI = Atlas.new({
+    Name = "Re3zf Hub",
+    ConfigFolder = "MyScript",
+    Credit = "Made By Re3zf",
+    Color = Color3.fromRGB(255, 0, 0),
+    Bind = "RightShift",
+    UseLoader = true,
+    FullName = "Re3zf Hub",
+    CheckKey = function(inputtedKey)
+        return inputtedKey == "."
+    end,
+    Discord = "https://discord.gg/sRSkHm4FnZ"
+})
+
+local ez = false
+local eze = false
+local ze = false
+
+local MyPage = UI:CreatePage("Main")
+
+local MySection = MyPage:CreateSection("OP")
+
+MySection:CreateToggle({ 
+	Name = "One Shot Mobs"; 
+	Flag = "One_Shot"; 
+	Default = false; 
+	Callback = function(newValue)
+	  ze = newValue
+        if ze then
+        else
+        end
+	end;
+	
+	Warning = "Be Careful To Not Use It Infront Of Someone"; 
+	WarningIcon = 11110093949; 
+})
+
+local MyPage = UI:CreatePage("Farm")
+
+local MyPage = UI:CreatePage("Esp")
+
+local MySection = MyPage:CreateSection("View")
+
+MySection:CreateButton({
+	Name = "Nofog"; -- required: name of element
+	Callback = function()  -- required: function to be called when button is pressed
+		local Lighting = game.Lighting
+
+game.Lighting.FogEnd = 100000
+	for i,v in pairs(Lighting:GetDescendants()) do
+		if v:IsA("Atmosphere") then
+			v:Destroy()
+		end
+	end
+	end
+})
+
+MySection:CreateButton({
+	Name = "Full Bright"; -- required: name of element
+	Callback = function()  -- required: function to be called when button is pressed
+		local Lighting =  game.Lighting
+
+Lighting.Brightness = 2
+Lighting.ClockTime = 14
+Lighting.FogEnd = 100000
+Lighting.GlobalShadows = false
+Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+	end
+})
+
+local MyPage = UI:CreatePage("Misc")
+
+
+
+local MySection = MyPage:CreateSection("Hunger")
+
+
+MySection:CreateToggle({ 
+	Name = "Auto Drink Wine (Helter Skelter)"; 
+	Flag = "Auto_Drink_Wine"; 
+	Default = false; 
+	Callback = function(newValue)  
+		        ez = newValue
+        if ez then
+        else
+        end
+	end;
+	
+	Warning = ""; 
+	WarningIcon = 12345; 
+})
+
+MySection:CreateToggle({ 
+	Name = "Auto Drink Coffee (Anteiku)"; 
+	Flag = "Auto_Drink_Coffee"; 
+	Default = false; 
+	Callback = function(newValue)  
+		        eze = newValue
+        if eze then
+        else
+        end
+	end;
+	
+	Warning = ""; 
+	WarningIcon = 12345;
+})
+
+MySection:CreateSlider({ 
+	Name = "Cooldown"; 
+	Flag = "Cooldown_for_auto_hunger"; 
+	Min = 0.5; 
+	Max = 5; 
+	AllowOutOfRange = false; 
+	Digits = 2; 
+	Default = 0.5; 
+	Callback = function(newValue)  
+		cooldown = newValue
+	end;
+	
+	Warning = ""; 
+	WarningIcon = 12345; 
+})
+
+local MySection = MyPage:CreateSection("Player")
+
+
+local plr = game.Players.LocalPlayer
+local mouse = plr:GetMouse()
+local localplayer = plr
+local flying = false
+
+if workspace:FindFirstChild("Core") then
+    workspace.Core:Destroy()
+end
+
+local Core = Instance.new("Part")
+Core.Name = "Core"
+Core.Size = Vector3.new(0.05, 0.05, 0.05)
+
+spawn(function()
+    Core.Parent = workspace
+    local Weld = Instance.new("Weld", Core)
+    Weld.Part0 = Core
+    Weld.Part1 = localplayer.Character:FindFirstChild("HumanoidRootPart")
+    Weld.C0 = CFrame.new(0, 0, 0)
+end)
+
+workspace:WaitForChild("Core")
+
+local hrp = workspace.Core
+local speed = 10
+local keys = {a = false, d = false, w = false, s = false}
+local e1, e2
+
+local function start()
+    local pos = Instance.new("BodyPosition", hrp)
+    local gyro = Instance.new("BodyGyro", hrp)
+    pos.Name = "EPIXPOS"
+    pos.maxForce = Vector3.new(math.huge, math.huge, math.huge)
+    pos.position = hrp.Position
+    gyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+    gyro.cframe = hrp.CFrame
+    
+    repeat
+        wait()
+        localplayer.Character.Humanoid.PlatformStand = true
+        local new = gyro.cframe - gyro.cframe.p + pos.position
+        
+        if not keys.w and not keys.s and not keys.a and not keys.d then
+            speed = 5
+        end
+        if keys.w then
+            new = new + workspace.CurrentCamera.CoordinateFrame.lookVector * speed
+        end
+        if keys.s then
+            new = new - workspace.CurrentCamera.CoordinateFrame.lookVector * speed
+        end
+        if keys.d then
+            new = new * CFrame.new(speed, 0, 0)
+        end
+        if keys.a then
+            new = new * CFrame.new(-speed, 0, 0)
+        end
+        
+        if speed > 10 then
+            speed = 5
+        end
+        
+        pos.position = new.p
+        
+        if keys.w then
+            gyro.cframe = workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad(speed * 0), 0, 0)
+        elseif keys.s then
+            gyro.cframe = workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(math.rad(speed * 0), 0, 0)
+        else
+            gyro.cframe = workspace.CurrentCamera.CoordinateFrame
+        end
+    until not flying
+    
+    pos:Destroy()
+    gyro:Destroy()
+    flying = false
+    localplayer.Character.Humanoid.PlatformStand = false
+    speed = 10
+end
+
+MySection:CreateKeybind({
+    Name = "Fly", 
+    Flag = "Fly_Keybind", 
+    Default = "J", 
+    Callback = function(key)  
+    end,
+    KeyPressed = function()  
+        flying = not flying
+        if flying then
+            start()
+        end
+    end,
+    Warning = "Change the keybind to whatever you want", 
+    WarningIcon = 1111099912782345 
+})
+
+mouse.KeyDown:Connect(function(key)
+    if key == "w" then
+        keys.w = true
+    elseif key == "s" then
+        keys.s = true
+    elseif key == "a" then
+        keys.a = true
+    elseif key == "d" then
+        keys.d = true
+    end
+end)
+
+mouse.KeyUp:Connect(function(key)
+    if key == "w" then
+        keys.w = false
+    elseif key == "s" then
+        keys.s = false
+    elseif key == "a" then
+        keys.a = false
+    elseif key == "d" then
+        keys.d = false
+    end
+end)
+
+MySection:CreateButton({
+	Name = "Destroy CGG Base Barriers";
+	Callback = function()  
+		
+for i = 1, 2 do
+	local ccgbarrier = workspace.MapSide:FindFirstChild("CCGBarrier")
+	if ccgbarrier then
+        ccgbarrier:Destroy()
+	end
+    task.wait() 
+end
+	end
+})
+
+MySection:CreateButton({
+	Name = "Destroy Helter Skelter Barriers"; 
+	Callback = function()  
+for i = 1, 4 do
+	local barrier = workspace.MapSide:FindFirstChild("GhoulBarrier")
+	if  barrier then
+        barrier:Destroy()
+	end
+    task.wait() 
+end
+	end
+})
+
+MySection:CreateButton({
+	Name = "Destroy Anteiku Barriers"; 
+	Callback = function()  
+for i = 1, 2 do
+	local anteiku = workspace.MapSide:FindFirstChild("GhoulBarrier")
+	if anteiku then
+        anteiku:Destroy()
+	end
+    task.wait() 
+end
+	end
+})
+
+MySection:CreateButton({
+	Name = "Destroy Aogiri Base Barriers";
+	Callback = function()  
+		for i = 1, 2 do
+	local Shellfs = workspace.MapSide.AogiriSecretDoor.Parts:FindFirstChild("Base")
+	if Shellfs then
+        Shellfs:Destroy()
+	end
+    task.wait() 
+end
+
+for i = 1, 14 do
+	local book = workspace.MapSide.AogiriSecretDoor.Parts:FindFirstChild("Books")
+	if book then
+        book:Destroy()
+	end
+    task.wait() 
+end
+
+
+local Wall = workspace.MapSide.AogiriSecretDoor:FindFirstChild("Hidden Door")
+if Wall then
+    Wall:Destroy()
+end
+
+local AogiriBase = workspace.MapSide:FindFirstChild("AogiriBarrier")
+if AogiriBase then
+    AogiriBase:Destroy()
+end
+	end
+})
+
+local MySection = MyPage:CreateSection("VERY VERY SECRET HE HE")
+
+MySection:CreateButton({
+	Name = "SECRET"; 
+	Callback = function()  
+		local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://111022323196285"
+sound.Parent = workspace
+sound:Play()
+	end
+})
+
+task.spawn(function()
+    while true do
+        if ez then
+            local args = {
+                [1] = {
+                    [1] = {
+                        ["Name"] = "Wine Seller",
+                        ["Position"] = Vector3.new(9128.3740234375, 13.56887435913086, 895.0400390625)
+                    },
+                    [2] = "\4"
+                }
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+            local args = {
+                [1] = {
+                    [1] = {
+                        ["Message"] = "Can I get you something?",
+                        ["Choice"] = "I'd like the special.",
+                        ["Name"] = "Wine Seller",
+                        ["Choices"] = {
+                            [1] = "No thanks.",
+                            [2] = "I'd like the special.",
+                            [3] = "(Check Rank Up Requirements)"
+                        },
+                        ["Properties"] = {
+                            ["RegularDelay"] = 0.02,
+                            ["DotDelay"] = 0,
+                            ["Name"] = "Val",
+                            ["Sound"] = "rbxassetid://6929790120"
+                        },
+                        ["Part"] = 1,
+                        ["NPCName"] = ""
+                    },
+                    [2] = "\3"
+                }
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+			local args = {
+                [1] = {
+                    [1] = {
+                        ["Message"] = "Here you go, my friend. Enjoy it.",
+                        ["Choice"] = "...",
+                        ["Name"] = "Wine Seller",
+                        ["Choices"] = {
+                            [1] = "..."
+                        },
+                        ["Properties"] = {
+                            ["RegularDelay"] = 0.02,
+                            ["DotDelay"] = 0,
+                            ["Name"] = "Val",
+                            ["Sound"] = "rbxassetid://6929790120"
+                        },
+                        ["Part"] = 2,
+                        ["NPCName"] = ""
+                    },
+                    [2] = "\3"
+                }
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+        end
+		task.wait(cooldown)
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if eze then
+    local args = {
+    [1] = {
+        [1] = {
+            ["Name"] = "Coffee Seller",
+            ["Position"] = Vector3.new(8485.9169921875, 5.316739559173584, 1696.8125)
+        },
+        [2] = "\4"
+    }
+}
+
+game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+local args = {
+    [1] = {
+        [1] = {
+            ["Message"] = "Can I get you something?",
+            ["Choice"] = "i'd like some coffee please.",
+            ["Name"] = "Coffee Seller",
+            ["Choices"] = {
+                [1] = "No thanks.",
+                [2] = "i'd like some coffee please."
+            },
+            ["Properties"] = {
+                ["RegularDelay"] = 0.02,
+                ["DotDelay"] = 0,
+                ["Name"] = "Amaya Sasaki",
+                ["Sound"] = "rbxassetid://6929790120"
+            },
+            ["Part"] = 1,
+            ["NPCName"] = ""
+        },
+        [2] = "\3"
+    }
+}
+
+game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+local args = {
+    [1] = {
+        [1] = {
+            ["Message"] = "Here you go. Enjoy it.",
+            ["Choice"] = "...",
+            ["Name"] = "Coffee Seller",
+            ["Choices"] = {
+                [1] = "..."
+            },
+            ["Properties"] = {
+                ["RegularDelay"] = 0.02,
+                ["DotDelay"] = 0,
+                ["Name"] = "Amaya Sasaki",
+                ["Sound"] = "rbxassetid://6929790120"
+            },
+            ["Part"] = 2,
+            ["NPCName"] = ""
+        },
+        [2] = "\3"
+    }
+}
+
+game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+end
+		task.wait(cooldown)
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if ze then
+    for _, mob in pairs(workspace.Entities:GetChildren()) do
+        pcall(function()
+            if mob:IsA("Model") and mob:FindFirstChildOfClass("Humanoid") and mob:FindFirstChild("HumanoidRootPart") then
+                local playerChar = game.Players.LocalPlayer.Character
+                if playerChar and playerChar:FindFirstChild("HumanoidRootPart") then
+                    local mobHRP = mob.HumanoidRootPart
+                    local playerHRP = playerChar.HumanoidRootPart
+
+                    local distance = (mobHRP.Position - playerHRP.Position).Magnitude
+                    if distance <= 35 then
+                        local directionToPlayer = (playerHRP.Position - mobHRP.Position).unit
+                        local mobLookDirection = mobHRP.CFrame.LookVector
+                        local dotProduct = mobLookDirection:Dot(directionToPlayer)
+
+                        if dotProduct > 0.5 then 
+                            mob:FindFirstChildOfClass("Humanoid").Health = 0
+                        end
+                    end
+                end
+            end
+        end)
+    end
+    end
+	task.wait(0.1)
+    end
+end)
+
+getgenv().AtlasUI = UI
