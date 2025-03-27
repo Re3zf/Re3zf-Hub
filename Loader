@@ -2,7 +2,7 @@ if (game.PlaceId == 91797414023830) then
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/Re3zf-Hub/refs/heads/main/Ghoul-Re"))()
 else
 
-local Re3zf_Hub = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/Re3zf-Hub/refs/heads/main/UI%20Library"))()
+local Re3zf_Hub = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/3zf-Hub/refs/heads/main/UI%20Library"))()
 
 local UI = Re3zf_Hub.new({
     Name = "Re3zf Hub",
