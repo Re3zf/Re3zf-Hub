@@ -1,0 +1,3 @@
+if (game.PlaceId == 9179741402380) then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/Re3zf-Hub/refs/heads/main/Ghoul-Re"))()
+end
