@@ -1,3 +1,28 @@
 if (game.PlaceId == 9179741402380) then
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/Re3zf-Hub/refs/heads/main/Ghoul-Re"))()
+else
+
+local Re3zf_Hub = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/Re3zf-Hub/refs/heads/main/UI%20Library"))()
+
+local UI = Re3zf_Hub.new({
+    Name = "Re3zf Hub",
+    ConfigFolder = "MyScript",
+    Credit = "Made By Re3zf",
+    Color = Color3.fromRGB(255, 0, 0),
+    Bind = "RightShift",
+    UseLoader = true,
+    FullName = "Re3zf Hub",
+    CheckKey = function(inputtedKey)
+        return inputtedKey == "."
+    end,
+    Discord = "https://discord.gg/sRSkHm4FnZ"
+})
+
+while true do
+UI:Notify({
+  Title = "Game Not Detected";
+  Content = "The Game You Are Trying To Execute In Isn't Supported Or There Is A Bug";
+})
+wait(5)
+end
 end
