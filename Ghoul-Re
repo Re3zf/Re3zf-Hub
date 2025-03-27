@@ -182,7 +182,7 @@ MySection:CreateSlider({
 
 local MySection = MyPage:CreateSection("Player")
 
-
+local UserInputService = game:GetService("UserInputService")
 local mouse = plr:GetMouse()
 local flying = false
 
@@ -267,7 +267,8 @@ MySection:CreateKeybind({
     Default = "J", 
     Callback = function(key)  
     end,
-    KeyPressed = function()  
+    KeyPressed = function() 
+	if UserInputService:GetFocusedTextBox() then return end
         flying = not flying
         if flying then
             start()
