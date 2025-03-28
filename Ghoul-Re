@@ -1,3 +1,7 @@
+if getgenv().AtlasUI then
+    getgenv().AtlasUI:Destroy()
+end
+
 local plr = game.Players.LocalPlayer
 local localplayer = plr
 
@@ -9,9 +13,6 @@ end
 
 waitForCharacter()
 
-if getgenv().AtlasUI then
-    getgenv().AtlasUI:Destroy()
-end
 
 local Atlas = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/3zf-Hub/refs/heads/main/UI%20Library"))()
 
@@ -35,6 +36,8 @@ local ze = false
 getgenv().esp = false
 getgenv().Health_Esp = false
 getgenv().Hunger_Esp = false
+getgenv().MobsEsp = false
+getgenv().MobsHealth_Esp = false
 
 
 local MyPage = UI:CreatePage("Main")
@@ -51,7 +54,7 @@ MySection:CreateToggle({
         else
         end
 	end;
-	
+	SavingDisabled = false;
 	Warning = "Be Careful To Not Use It Infront Of Someone"; 
 	WarningIcon = 11110093949; 
 })
@@ -60,7 +63,7 @@ local MyPage = UI:CreatePage("Farm")
 
 local MyPage = UI:CreatePage("Esp")
 
-local MySection = MyPage:CreateSection("Esp")
+local MySection = MyPage:CreateSection("Players")
 
 MySection:CreateToggle({ 
 	Name = "Esp"; 
@@ -69,19 +72,19 @@ MySection:CreateToggle({
 	Callback = function(newValue)  
 		  getgenv().esp = newValue
 	end;
-	
+	SavingDisabled = false;
 	Warning = ""; 
 	WarningIcon = 12345; 
 })
 
 MySection:CreateToggle({ 
-	Name = "Healh Esp"; 
+	Name = "Health Esp"; 
 	Flag = "Health_Esp"; 
 	Default = false; 
 	Callback = function(newValue)  
 		  getgenv().Health_Esp = newValue
 	end;
-	
+	SavingDisabled = false;
 	Warning = ""; 
 	WarningIcon = 12345; 
 })
@@ -93,12 +96,40 @@ MySection:CreateToggle({
 	Callback = function(newValue)  
 		  getgenv().Hunger_Esp = newValue
 	end;
-	
+    SavingDisabled = false;
 	Warning = ""; 
 	WarningIcon = 12345; 
 })
 
+local MySection = MyPage:CreateSection("Mobs")
+
+MySection:CreateToggle({ 
+	Name = "Mobs Esp"; 
+	Flag = "Mobs_Hightlighting_Esp"; 
+	Default = false; 
+	Callback = function(newValue)  
+		  getgenv().MobsEsp = newValue
+	end;
+    SavingDisabled = false;
+	Warning = ""; 
+	WarningIcon = 12345; 
+})
+
+MySection:CreateToggle({ 
+	Name = "Mobs Health Esp"; 
+	Flag = "MobsHealth_Esp"; 
+	Default = false; 
+	Callback = function(newValue)  
+		  getgenv().MobsHealth_Esp = newValue
+	end;
+    SavingDisabled = false;
+	Warning = ""; 
+	WarningIcon = 12345; 
+})
+
+
 local MySection = MyPage:CreateSection("View")
+
 
 MySection:CreateButton({
 	Name = "Nofog"; 
@@ -128,7 +159,6 @@ Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
 })
 
 local MyPage = UI:CreatePage("Misc")
-
 
 
 local MySection = MyPage:CreateSection("Hunger")
@@ -386,6 +416,7 @@ sound:Play()
 	end
 })
 
+
 task.spawn(function()
     while true do
         if ez then
@@ -449,6 +480,8 @@ task.spawn(function()
 		task.wait(cooldown)
     end
 end)
+
+
 
 task.spawn(function()
     while true do
@@ -516,108 +549,131 @@ end
     end
 end)
 
+
+
 task.spawn(function()
     while true do
         if ze then
-    for _, mob in pairs(workspace.Entities:GetChildren()) do
-        pcall(function()
-            if mob:IsA("Model") and mob:FindFirstChildOfClass("Humanoid") and mob:FindFirstChild("HumanoidRootPart") then
-                local playerChar = game.Players.LocalPlayer.Character
-                if playerChar and playerChar:FindFirstChild("HumanoidRootPart") then
-                    local mobHRP = mob.HumanoidRootPart
-                    local playerHRP = playerChar.HumanoidRootPart
+            for _, mob in pairs(workspace.Entities:GetChildren()) do
+                pcall(function()
+                    if mob:IsA("Model") and mob:FindFirstChildOfClass("Humanoid") and mob:FindFirstChild("HumanoidRootPart") then
+                        local playerChar = game.Players.LocalPlayer.Character
+                        if playerChar and playerChar:FindFirstChild("HumanoidRootPart") then
+                            local mobHRP = mob.HumanoidRootPart
+                            local playerHRP = playerChar.HumanoidRootPart
 
-                    local distance = (mobHRP.Position - playerHRP.Position).Magnitude
-                    if distance <= 35 then
-                        local directionToPlayer = (playerHRP.Position - mobHRP.Position).unit
-                        local mobLookDirection = mobHRP.CFrame.LookVector
-                        local dotProduct = mobLookDirection:Dot(directionToPlayer)
+                            local mobName = string.lower(mob.Name) -- Convert to lowercase for case insensitivity
+                            local range = 35 -- Default range
 
-                        if dotProduct > 0.5 then 
-                            mob:FindFirstChildOfClass("Humanoid").Health = 0
+                            if mobName:find("^noro") or mobName:find("^eto") or mobName:find("^tatara") then
+                                range = 125
+                            elseif mobName:find("^humanoid") then
+                                range = 35
+                            end
+
+                            local distance = (mobHRP.Position - playerHRP.Position).Magnitude
+                            if distance <= range then
+                                local directionToPlayer = (playerHRP.Position - mobHRP.Position).unit
+                                local mobLookDirection = mobHRP.CFrame.LookVector
+                                local dotProduct = mobLookDirection:Dot(directionToPlayer)
+
+                                if dotProduct > 0.5 then 
+                                    mob:FindFirstChildOfClass("Humanoid").Health = 0
+                                end
+                            end
                         end
                     end
-                end
+                end)
             end
-        end)
-    end
-    end
-	task.wait(0.1)
+        end
+        task.wait()
     end
 end)
+
+
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
 local function applyHighlight(player)
-    if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
-        if getgenv().esp then
-            if not rootPart:FindFirstChild("Highlight") then
-                local highlight = Instance.new("Highlight")
-                highlight.Name = "Highlight"
-                highlight.Adornee = player.Character
-                highlight.Parent = rootPart
-                highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-            end
-        else
-            if rootPart:FindFirstChild("Highlight") then
-                rootPart:FindFirstChild("Highlight"):Destroy()
-            end
+    if player == LocalPlayer then return end
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+    
+    local character = player.Character
+    local highlight = character:FindFirstChild("Highlight")
+
+    if getgenv().esp then
+        if not highlight then
+            highlight = Instance.new("Highlight")
+            highlight.Name = "Highlight"
+            highlight.Adornee = character
+            highlight.Parent = character
+            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            highlight.FillColor = Color3.fromRGB(255, 0, 0)
+            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+            highlight.FillTransparency = 0.5
+            highlight.OutlineTransparency = 0
+        end
+    else
+        if highlight then
+            highlight:Destroy()
+        end
+    end
+end
+
+local function onCharacterAdded(character)
+    repeat task.wait() until character:FindFirstChild("HumanoidRootPart")
+    applyHighlight(Players:GetPlayerFromCharacter(character))
+end
+
+local function onPlayerAdded(player)
+    player.CharacterAdded:Connect(onCharacterAdded)
+    if player.Character then
+        onCharacterAdded(player.Character)
+    end
+end
+
+local function onPlayerRemoving(player)
+    if player.Character then
+        local highlight = player.Character:FindFirstChild("Highlight")
+        if highlight then
+            highlight:Destroy()
         end
     end
 end
 
 for _, player in pairs(Players:GetPlayers()) do
     if player ~= LocalPlayer then
-        player.CharacterAdded:Connect(function()
-            repeat wait() until player.Character
-            applyHighlight(player)
-        end)
+        onPlayerAdded(player)
     end
 end
 
-Players.PlayerAdded:Connect(function(player)
-    if player ~= LocalPlayer then
-        player.CharacterAdded:Connect(function()
-            repeat wait() until player.Character
-            applyHighlight(player)
-        end)
-    end
-end)
-
-Players.PlayerRemoving:Connect(function(playerRemoved)
-    if playerRemoved ~= LocalPlayer and playerRemoved.Character and playerRemoved.Character:FindFirstChild("HumanoidRootPart") then
-        local rootPart = playerRemoved.Character:FindFirstChild("HumanoidRootPart")
-        if rootPart:FindFirstChild("Highlight") then
-            rootPart.Highlight:Destroy()
-        end
-    end
-end)
+Players.PlayerAdded:Connect(onPlayerAdded)
+Players.PlayerRemoving:Connect(onPlayerRemoving)
 
 RunService.Heartbeat:Connect(function()
     for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            applyHighlight(player)
-        end
+        applyHighlight(player)
     end
 end)
 
+
+
 local PlayersFolder = workspace:WaitForChild("Entities") 
 local RunService = game:GetService("RunService")
-
 local localPlayer = game.Players.LocalPlayer
 
-local function createHealthBar(playerModel)
+local function createPlayerHealthBar(playerModel)
     if playerModel == localPlayer.Character then return end
 
     local player = game.Players:GetPlayerFromCharacter(playerModel)
     if not player then return end 
     
-    if not playerModel:FindFirstChild("HumanoidRootPart") then return end
+    local humanoid = playerModel:FindFirstChild("Humanoid")
     local rootPart = playerModel:FindFirstChild("HumanoidRootPart")
-    
+    if not humanoid or not rootPart then return end
+
     if not getgenv().Health_Esp then
         if rootPart:FindFirstChild("HealthBar") then
             rootPart.HealthBar:Destroy()
@@ -626,9 +682,6 @@ local function createHealthBar(playerModel)
     end
 
     if rootPart:FindFirstChild("HealthBar") then return end 
-
-    local healthValue = playerModel:FindFirstChild("Humanoid") 
-    if not healthValue then return end
 
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "HealthBar"
@@ -657,26 +710,23 @@ local function createHealthBar(playerModel)
             return
         end
         
-        if healthValue and healthFrame then
-            local maxHealth = healthValue.MaxHealth
-            local healthPercent = math.clamp(healthValue.Health / maxHealth, 0, 1) 
+        if humanoid and healthFrame then
+            local maxHealth = humanoid.MaxHealth
+            local healthPercent = math.clamp(humanoid.Health / maxHealth, 0, 1) 
             
             healthFrame.Size = UDim2.new(1, 0, healthPercent, 0) 
             healthFrame.Position = UDim2.new(0, 0, 1 - healthPercent, 0) 
         end
     end
 
-    healthValue.HealthChanged:Connect(updateBar)
+    humanoid.HealthChanged:Connect(updateBar)
     updateBar()
 end
 
 local function setupExistingPlayers()
     for _, playerModel in pairs(PlayersFolder:GetChildren()) do
         if playerModel:IsA("Model") then
-            local player = game.Players:GetPlayerFromCharacter(playerModel)
-            if player and player ~= localPlayer then
-                createHealthBar(playerModel)
-            end
+            createPlayerHealthBar(playerModel)
         end
     end
 end
@@ -684,14 +734,11 @@ end
 PlayersFolder.ChildAdded:Connect(function(playerModel)
     if playerModel:IsA("Model") then
         repeat wait() until playerModel:FindFirstChild("HumanoidRootPart") and playerModel:FindFirstChild("Humanoid")
-        local player = game.Players:GetPlayerFromCharacter(playerModel)
-        if player and player ~= localPlayer then
-            createHealthBar(playerModel)
-        end
+        createPlayerHealthBar(playerModel)
     end
 end)
 
-local function removeAllHealthBars()
+local function removeAllPlayerHealthBars()
     for _, playerModel in pairs(PlayersFolder:GetChildren()) do
         if playerModel:IsA("Model") then
             local rootPart = playerModel:FindFirstChild("HumanoidRootPart")
@@ -706,13 +753,25 @@ setupExistingPlayers()
 
 RunService.Heartbeat:Connect(function()
     if not getgenv().Health_Esp then
-        removeAllHealthBars()
+        removeAllPlayerHealthBars()
     else
-        setupExistingPlayers()
+        for _, playerModel in pairs(PlayersFolder:GetChildren()) do
+            if playerModel:IsA("Model") then
+                if not playerModel:FindFirstChild("HumanoidRootPart") or not playerModel:FindFirstChild("Humanoid") then
+                    continue
+                end
+                if not playerModel:FindFirstChild("HumanoidRootPart"):FindFirstChild("HealthBar") then
+                    createPlayerHealthBar(playerModel)
+                end
+            end
+        end
     end
 end)
 
-local PlayersFolder = workspace:WaitForChild("Entities") 
+
+
+
+local PlayersFolder = workspace:WaitForChild("Entities")
 local RunService = game:GetService("RunService")
 
 local localPlayer = game.Players.LocalPlayer
@@ -722,10 +781,12 @@ local function createHungerBar(playerModel)
 
     local player = game.Players:GetPlayerFromCharacter(playerModel)
     if not player then return end
-    
-    if not playerModel:FindFirstChild("HumanoidRootPart") then return end
+
     local rootPart = playerModel:FindFirstChild("HumanoidRootPart")
-    
+    local hungerValue = playerModel:FindFirstChild("Hunger")
+
+    if not rootPart or not hungerValue or not hungerValue:IsA("NumberValue") then return end
+
     if not getgenv().Hunger_Esp then
         if rootPart:FindFirstChild("HungerBar") then
             rootPart.HungerBar:Destroy()
@@ -735,28 +796,25 @@ local function createHungerBar(playerModel)
 
     if rootPart:FindFirstChild("HungerBar") then return end 
 
-    local hungerValue = playerModel:FindFirstChild("Hunger") 
-    if not hungerValue or not hungerValue:IsA("NumberValue") then return end
-
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "HungerBar"
-    billboard.Size = UDim2.new(0.2, 0, 4, 0) 
-    billboard.StudsOffset = Vector3.new(2, 0, 0) 
+    billboard.Size = UDim2.new(0.2, 0, 4, 0)
+    billboard.StudsOffset = Vector3.new(2, 0, 0)
     billboard.AlwaysOnTop = true
     billboard.Parent = rootPart
 
     local bgFrame = Instance.new("Frame")
     bgFrame.Size = UDim2.new(1, 0, 1, 0)
-    bgFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50) 
+    bgFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     bgFrame.BorderSizePixel = 0
     bgFrame.Parent = billboard
 
     local hungerFrame = Instance.new("Frame")
     hungerFrame.Name = "HungerFill"
-    hungerFrame.Size = UDim2.new(1, 0, 0, 0) 
-    hungerFrame.BackgroundColor3 = Color3.fromRGB(255, 165, 0) 
+    hungerFrame.Size = UDim2.new(1, 0, 0, 0)
+    hungerFrame.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
     hungerFrame.BorderSizePixel = 0
-    hungerFrame.Position = UDim2.new(0, 0, 1, 0) 
+    hungerFrame.Position = UDim2.new(0, 0, 1, 0)
     hungerFrame.Parent = bgFrame
 
     local function updateBar()
@@ -764,13 +822,13 @@ local function createHungerBar(playerModel)
             if billboard then billboard:Destroy() end
             return
         end
-        
+
         if hungerValue and hungerFrame then
-            local maxHunger = 100 
-            local hungerPercent = math.clamp(hungerValue.Value / maxHunger, 0, 1) 
-            
-            hungerFrame.Size = UDim2.new(1, 0, hungerPercent, 0) 
-            hungerFrame.Position = UDim2.new(0, 0, 1 - hungerPercent, 0) 
+            local maxHunger = 100
+            local hungerPercent = math.clamp(hungerValue.Value / maxHunger, 0, 1)
+
+            hungerFrame.Size = UDim2.new(1, 0, hungerPercent, 0)
+            hungerFrame.Position = UDim2.new(0, 0, 1 - hungerPercent, 0)
         end
     end
 
@@ -781,10 +839,7 @@ end
 local function setupExistingPlayers()
     for _, playerModel in pairs(PlayersFolder:GetChildren()) do
         if playerModel:IsA("Model") then
-            local player = game.Players:GetPlayerFromCharacter(playerModel)
-            if player and player ~= localPlayer then
-                createHungerBar(playerModel)
-            end
+            createHungerBar(playerModel)
         end
     end
 end
@@ -792,10 +847,7 @@ end
 PlayersFolder.ChildAdded:Connect(function(playerModel)
     if playerModel:IsA("Model") then
         repeat wait() until playerModel:FindFirstChild("HumanoidRootPart") and playerModel:FindFirstChild("Hunger")
-        local player = game.Players:GetPlayerFromCharacter(playerModel)
-        if player and player ~= localPlayer then
-            createHungerBar(playerModel)
-        end
+        createHungerBar(playerModel)
     end
 end)
 
@@ -816,8 +868,178 @@ RunService.Heartbeat:Connect(function()
     if not getgenv().Hunger_Esp then
         removeAllHungerBars()
     else
-        setupExistingPlayers()
+        for _, playerModel in pairs(PlayersFolder:GetChildren()) do
+            if playerModel:IsA("Model") then
+                local rootPart = playerModel:FindFirstChild("HumanoidRootPart")
+                if rootPart and not rootPart:FindFirstChild("HungerBar") then
+                    createHungerBar(playerModel)
+                end
+            end
+        end
     end
 end)
+
+
+
+local RunService = game:GetService("RunService")
+local EntitiesFolder = workspace:FindFirstChild("Entities")
+
+local function applyHighlight(mob)
+    if not getgenv().MobsEsp then return end
+    if not mob:IsA("Model") or not mob:FindFirstChild("HumanoidRootPart") then return end
+    if not mob.Name:match("^Humanoid_") then return end
+
+    local rootPart = mob:FindFirstChild("HumanoidRootPart")
+
+    if not rootPart:FindFirstChild("MobHighlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "MobHighlight"
+        highlight.Adornee = mob
+        highlight.Parent = rootPart
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        highlight.FillColor = Color3.fromRGB(0, 0, 255)
+    end
+end
+
+local function removeMobHighlight(mob)
+    if mob:FindFirstChild("HumanoidRootPart") then
+        local rootPart = mob.HumanoidRootPart
+        if rootPart:FindFirstChild("MobHighlight") then
+            rootPart.MobHighlight:Destroy()
+        end
+    end
+end
+
+local function updateESP()
+    if not getgenv().MobsEsp then
+        for _, mob in pairs(EntitiesFolder:GetChildren()) do
+            if mob:IsA("Model") and mob.Name:match("^Humanoid_") then
+                removeMobHighlight(mob)
+            end
+        end
+        return
+    end
+
+    for _, mob in pairs(EntitiesFolder:GetChildren()) do
+        if mob:IsA("Model") and mob.Name:match("^Humanoid_") then
+            applyHighlight(mob)
+        end
+    end
+end
+
+RunService.Heartbeat:Connect(updateESP)
+
+if EntitiesFolder then
+    EntitiesFolder.ChildAdded:Connect(function(mob)
+        task.wait()
+        applyHighlight(mob)
+    end)
+
+    EntitiesFolder.ChildRemoved:Connect(removeMobHighlight)
+end
+
+
+
+
+local mhEntitiesFolder = workspace:WaitForChild("Entities") 
+local mhRunService = game:GetService("RunService")
+
+local function mhcreateMobHealthBar(mhmobModel)
+    if not getgenv().MobsHealth_Esp then return end
+    if not mhmobModel:FindFirstChild("HumanoidRootPart") then return end
+    if not mhmobModel.Name:match("^Humanoid_") then return end 
+
+    local mhrootPart = mhmobModel:FindFirstChild("HumanoidRootPart")
+    
+    if mhrootPart:FindFirstChild("MobHealthBar") then return end 
+
+    local mhhealthValue = mhmobModel:FindFirstChild("Humanoid") 
+    if not mhhealthValue then return end
+
+    local mhbillboard = Instance.new("BillboardGui")
+    mhbillboard.Name = "MobHealthBar" 
+    mhbillboard.Size = UDim2.new(0.2, 0, 4, 0) 
+    mhbillboard.StudsOffset = Vector3.new(-2, 0, 0) 
+    mhbillboard.AlwaysOnTop = true
+    mhbillboard.Parent = mhrootPart
+
+    local mhbgFrame = Instance.new("Frame")
+    mhbgFrame.Size = UDim2.new(1, 0, 1, 0)
+    mhbgFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50) 
+    mhbgFrame.BorderSizePixel = 0
+    mhbgFrame.Parent = mhbillboard
+
+    local mhhealthFrame = Instance.new("Frame")
+    mhhealthFrame.Name = "HealthFill"
+    mhhealthFrame.Size = UDim2.new(1, 0, 0, 0) 
+    mhhealthFrame.BackgroundColor3 = Color3.fromRGB(0, 255, 0) 
+    mhhealthFrame.BorderSizePixel = 0
+    mhhealthFrame.Position = UDim2.new(0, 0, 1, 0) 
+    mhhealthFrame.Parent = mhbgFrame
+
+    local function mhupdateMobHealthBar()
+        if not getgenv().MobsHealth_Esp then
+            if mhbillboard then mhbillboard:Destroy() end
+            return
+        end
+        
+        if mhhealthValue and mhhealthFrame then
+            local mhmaxHealth = mhhealthValue.MaxHealth
+            local mhhealthPercent = math.clamp(mhhealthValue.Health / mhmaxHealth, 0, 1) 
+            
+            mhhealthFrame.Size = UDim2.new(1, 0, mhhealthPercent, 0) 
+            mhhealthFrame.Position = UDim2.new(0, 0, 1 - mhhealthPercent, 0) 
+        end
+    end
+
+    mhhealthValue.HealthChanged:Connect(mhupdateMobHealthBar)
+    mhupdateMobHealthBar()
+end
+
+local function mhsetupExistingMobsHealthBars()
+    for _, mhmobModel in pairs(mhEntitiesFolder:GetChildren()) do
+        if mhmobModel:IsA("Model") and mhmobModel.Name:match("^Humanoid_") then
+            mhcreateMobHealthBar(mhmobModel)
+        end
+    end
+end
+
+mhEntitiesFolder.ChildAdded:Connect(function(mhmobModel)
+    if mhmobModel:IsA("Model") and mhmobModel.Name:match("^Humanoid_") then
+        repeat wait() until mhmobModel:FindFirstChild("HumanoidRootPart") and mhmobModel:FindFirstChild("Humanoid")
+        mhcreateMobHealthBar(mhmobModel)
+    end
+end)
+
+local function mhremoveAllMobHealthBars()
+    for _, mhmobModel in pairs(mhEntitiesFolder:GetChildren()) do
+        if mhmobModel:IsA("Model") and mhmobModel.Name:match("^Humanoid_") then
+            local mhrootPart = mhmobModel:FindFirstChild("HumanoidRootPart")
+            if mhrootPart and mhrootPart:FindFirstChild("MobHealthBar") then
+                mhrootPart.MobHealthBar:Destroy()
+            end
+        end
+    end
+end
+
+mhsetupExistingMobsHealthBars()
+
+mhRunService.Heartbeat:Connect(function()
+    if not getgenv().MobsHealth_Esp then
+        mhremoveAllMobHealthBars()
+    else
+        for _, mhmobModel in pairs(mhEntitiesFolder:GetChildren()) do
+            if mhmobModel:IsA("Model") and mhmobModel.Name:match("^Humanoid_") then
+                if not mhmobModel:FindFirstChild("HumanoidRootPart") or not mhmobModel:FindFirstChild("Humanoid") then
+                    continue
+                end
+                if not mhmobModel:FindFirstChild("HumanoidRootPart"):FindFirstChild("MobHealthBar") then
+                    mhcreateMobHealthBar(mhmobModel)
+                end
+            end
+        end
+    end
+end)
+
 
 getgenv().AtlasUI = UI
