@@ -38,6 +38,7 @@ getgenv().Health_Esp = false
 getgenv().Hunger_Esp = false
 getgenv().MobsEsp = false
 getgenv().MobsHealth_Esp = false
+getgenv().Noclip = false 
 
 
 local MyPage = UI:CreatePage("Main")
@@ -212,6 +213,17 @@ MySection:CreateSlider({
 
 local MySection = MyPage:CreateSection("Player")
 
+MySection:CreateToggle({ 
+	Name = "Noclip"; 
+	Flag = "Noclip"; 
+	Default = false; 
+	Callback = function(newValue)  
+		  getgenv().Noclip = newValue
+	end;
+	Warning = ""; 
+	WarningIcon = 12345; 
+})
+
 local UserInputService = game:GetService("UserInputService")
 local mouse = plr:GetMouse()
 local flying = false
@@ -226,6 +238,8 @@ Core.Size = Vector3.new(0.05, 0.05, 0.05)
 
 spawn(function()
     Core.Parent = workspace
+	Core.Transparency = 1
+	Core.CanCollide = false
     local Weld = Instance.new("Weld", Core)
     Weld.Part0 = Core
     Weld.Part1 = localplayer.Character:FindFirstChild("HumanoidRootPart")
@@ -331,6 +345,8 @@ mouse.KeyUp:Connect(function(key)
         keys.d = false
     end
 end)
+
+local MySection = MyPage:CreateSection("Bypasses")
 
 MySection:CreateButton({
 	Name = "Destroy CGG Base Barriers";
@@ -1041,5 +1057,22 @@ mhRunService.Heartbeat:Connect(function()
     end
 end)
 
+local RunService = game:GetService("RunService")
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+RunService.Stepped:Connect(function()
+    if character and character.Parent then
+        local fakeHead = workspace.FakeHeads:FindFirstChild(player.Name .. "FakeHead")
+        if fakeHead and fakeHead:IsA("BasePart") then
+            fakeHead.CanCollide = getgenv().Noclip == false
+        end
+
+        local torso = character:FindFirstChild("Torso")
+        if torso and torso:IsA("BasePart") then
+            torso.CanCollide = getgenv().Noclip == false
+        end
+    end
+end)
 
 getgenv().AtlasUI = UI
