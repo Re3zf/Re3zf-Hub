@@ -30,8 +30,9 @@ local UI = Atlas.new({
     Discord = "https://discord.gg/sRSkHm4FnZ"
 })
 
-local ez = false
-local eze = false
+
+local Selected_Drink = nil
+local Auto_Drink = false
 local ze = false
 getgenv().esp = false
 getgenv().Health_Esp = false
@@ -62,6 +63,8 @@ MySection:CreateToggle({
 
 local MyPage = UI:CreatePage("Farm")
 
+local MySection = MyPage:CreateSection("Bosses")
+
 local MyPage = UI:CreatePage("Esp")
 
 local MySection = MyPage:CreateSection("Players")
@@ -73,9 +76,7 @@ MySection:CreateToggle({
 	Callback = function(newValue)  
 		  getgenv().esp = newValue
 	end;
-	SavingDisabled = true;
-	Warning = ""; 
-	WarningIcon = 12345; 
+	SavingDisabled = true; 
 })
 
 MySection:CreateToggle({ 
@@ -86,8 +87,6 @@ MySection:CreateToggle({
 		  getgenv().Health_Esp = newValue
 	end;
 	SavingDisabled = true;
-	Warning = ""; 
-	WarningIcon = 12345; 
 })
 
 MySection:CreateToggle({ 
@@ -97,9 +96,7 @@ MySection:CreateToggle({
 	Callback = function(newValue)  
 		  getgenv().Hunger_Esp = newValue
 	end;
-    SavingDisabled = true;
-	Warning = ""; 
-	WarningIcon = 12345; 
+    SavingDisabled = true; 
 })
 
 local MySection = MyPage:CreateSection("Mobs")
@@ -112,8 +109,6 @@ MySection:CreateToggle({
 		  getgenv().MobsEsp = newValue
 	end;
     SavingDisabled = true;
-	Warning = ""; 
-	WarningIcon = 12345; 
 })
 
 MySection:CreateToggle({ 
@@ -124,8 +119,6 @@ MySection:CreateToggle({
 		  getgenv().MobsHealth_Esp = newValue
 	end;
     SavingDisabled = true;
-	Warning = ""; 
-	WarningIcon = 12345; 
 })
 
 
@@ -164,36 +157,18 @@ local MyPage = UI:CreatePage("Misc")
 
 local MySection = MyPage:CreateSection("Hunger")
 
-
-MySection:CreateToggle({ 
-	Name = "Auto Drink Wine (Helter Skelter)"; 
-	Flag = "Auto_Drink_Wine"; 
-	Default = false; 
-	Callback = function(newValue)  
-		        ez = newValue
-        if ez then
-        else
-        end
+local MyDropdown = MySection:CreateDropdown({ 
+	Name = "Select a Drink"; 
+	Callback = function(item)  
+		Selected_Drink = item
 	end;
-	
-	Warning = ""; 
-	WarningIcon = 12345; 
+	Options = {"Coffee", "Wine"}; 
+	ItemSelecting = true; 
+	DefaultItemSelected = ""; 
 })
 
-MySection:CreateToggle({ 
-	Name = "Auto Drink Coffee (Anteiku)"; 
-	Flag = "Auto_Drink_Coffee"; 
-	Default = false; 
-	Callback = function(newValue)  
-		        eze = newValue
-        if eze then
-        else
-        end
-	end;
-	
-	Warning = ""; 
-	WarningIcon = 12345;
-})
+
+
 
 MySection:CreateSlider({ 
 	Name = "Cooldown"; 
@@ -206,9 +181,16 @@ MySection:CreateSlider({
 	Callback = function(newValue)  
 		cooldown = newValue
 	end;
-	
-	Warning = ""; 
-	WarningIcon = 12345; 
+})
+
+MySection:CreateToggle({ 
+	Name = "Auto Drink "; 
+	Flag = "Auto_Drink"; 
+	Default = false; 
+	Callback = function(newValue)  
+       Auto_Drink = newValue
+	end;
+	SavingDisabled = true;
 })
 
 local MySection = MyPage:CreateSection("Player")
@@ -220,40 +202,49 @@ MySection:CreateToggle({
 	Callback = function(newValue)  
 		  getgenv().Noclip = newValue
 	end;
-	Warning = ""; 
-	WarningIcon = 12345; 
+	SavingDisabled = true;
+	Warning = "Be Careful To Not Use It Infront Of Someone"; 
+	WarningIcon = 11110093949;
 })
 
 local UserInputService = game:GetService("UserInputService")
-local mouse = plr:GetMouse()
+local mouse = game.Players.LocalPlayer:GetMouse()
+local plr = game.Players.LocalPlayer
+local localplayer = game.Players.LocalPlayer
 local flying = false
-
-if workspace:FindFirstChild("Core") then
-    workspace.Core:Destroy()
-end
-
-local Core = Instance.new("Part")
-Core.Name = "Core"
-Core.Size = Vector3.new(0.05, 0.05, 0.05)
-
-spawn(function()
-    Core.Parent = workspace
-	Core.Transparency = 1
-	Core.CanCollide = false
-    local Weld = Instance.new("Weld", Core)
-    Weld.Part0 = Core
-    Weld.Part1 = localplayer.Character:FindFirstChild("HumanoidRootPart")
-    Weld.C0 = CFrame.new(0, 0, 0)
-end)
-
-workspace:WaitForChild("Core")
-
-local hrp = workspace.Core
+local hrp = nil
 local speed = 10
 local keys = {a = false, d = false, w = false, s = false}
-local e1, e2
 
-local function start()
+local function createFlyingCore(character)
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 10)
+    if not humanoidRootPart then
+        warn("HumanoidRootPart not found!")
+        return
+    end
+
+    if workspace:FindFirstChild("Core") then
+        workspace.Core:Destroy()
+    end
+
+    local Core = Instance.new("Part")
+    Core.Name = "Core"
+    Core.Size = Vector3.new(0.05, 0.05, 0.05)
+    Core.Parent = workspace
+    Core.Transparency = 1
+    Core.CanCollide = false
+
+    local Weld = Instance.new("Weld", Core)
+    Weld.Part0 = Core
+    Weld.Part1 = humanoidRootPart
+    Weld.C0 = CFrame.new(0, 0, 0)
+
+    hrp = Core
+end
+
+local function startFlying()
+    if not hrp then return end
+    
     local pos = Instance.new("BodyPosition", hrp)
     local gyro = Instance.new("BodyGyro", hrp)
     pos.Name = "EPIXPOS"
@@ -305,6 +296,10 @@ local function start()
     speed = 10
 end
 
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+    createFlyingCore(character)
+end)
+
 MySection:CreateKeybind({
     Name = "Fly", 
     Flag = "Fly_Keybind", 
@@ -312,14 +307,19 @@ MySection:CreateKeybind({
     Callback = function(key)  
     end,
     KeyPressed = function() 
-	if UserInputService:GetFocusedTextBox() then return end
+        if UserInputService:GetFocusedTextBox() then return end
         flying = not flying
         if flying then
-            start()
+            if hrp then
+                startFlying()
+            else
+                createFlyingCore(localplayer.Character) 
+                startFlying()
+            end
         end
     end,
-    Warning = "Change the keybind to whatever you want", 
-    WarningIcon = 1111099912782345 
+    Warning = "Change the keybind to whatever you want"; 
+    WarningIcon = 11109991278; 
 })
 
 mouse.KeyDown:Connect(function(key)
@@ -345,6 +345,11 @@ mouse.KeyUp:Connect(function(key)
         keys.d = false
     end
 end)
+
+if localplayer.Character then
+    createFlyingCore(localplayer.Character)
+end
+
 
 local MySection = MyPage:CreateSection("Bypasses")
 
@@ -433,76 +438,9 @@ sound:Play()
 })
 
 
-task.spawn(function()
-    while true do
-        if ez then
-            local args = {
-                [1] = {
-                    [1] = {
-                        ["Name"] = "Wine Seller",
-                        ["Position"] = Vector3.new(9128.3740234375, 13.56887435913086, 895.0400390625)
-                    },
-                    [2] = "\4"
-                }
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
-            local args = {
-                [1] = {
-                    [1] = {
-                        ["Message"] = "Can I get you something?",
-                        ["Choice"] = "I'd like the special.",
-                        ["Name"] = "Wine Seller",
-                        ["Choices"] = {
-                            [1] = "No thanks.",
-                            [2] = "I'd like the special.",
-                            [3] = "(Check Rank Up Requirements)"
-                        },
-                        ["Properties"] = {
-                            ["RegularDelay"] = 0.02,
-                            ["DotDelay"] = 0,
-                            ["Name"] = "Val",
-                            ["Sound"] = "rbxassetid://6929790120"
-                        },
-                        ["Part"] = 1,
-                        ["NPCName"] = ""
-                    },
-                    [2] = "\3"
-                }
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
-			local args = {
-                [1] = {
-                    [1] = {
-                        ["Message"] = "Here you go, my friend. Enjoy it.",
-                        ["Choice"] = "...",
-                        ["Name"] = "Wine Seller",
-                        ["Choices"] = {
-                            [1] = "..."
-                        },
-                        ["Properties"] = {
-                            ["RegularDelay"] = 0.02,
-                            ["DotDelay"] = 0,
-                            ["Name"] = "Val",
-                            ["Sound"] = "rbxassetid://6929790120"
-                        },
-                        ["Part"] = 2,
-                        ["NPCName"] = ""
-                    },
-                    [2] = "\3"
-                }
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
-        end
-		task.wait(cooldown)
-    end
-end)
-
-
-
-task.spawn(function()
-    while true do
-        if eze then
-    local args = {
+local function farmCoffeeSeller()
+	while Auto_Drink and Selected_Drink == "Coffee" do
+		    local args = {
     [1] = {
         [1] = {
             ["Name"] = "Coffee Seller",
@@ -560,11 +498,88 @@ local args = {
 }
 
 game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
-end
 		task.wait(cooldown)
-    end
-end)
+	end
+end
 
+
+
+local function farmWineSeller()
+	while Auto_Drink and Selected_Drink == "Wine" do
+            local args = {
+                [1] = {
+                    [1] = {
+                        ["Name"] = "Wine Seller",
+                        ["Position"] = Vector3.new(9128.3740234375, 13.56887435913086, 895.0400390625)
+                    },
+                    [2] = "\4"
+                }
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+            local args = {
+                [1] = {
+                    [1] = {
+                        ["Message"] = "Can I get you something?",
+                        ["Choice"] = "I'd like the special.",
+                        ["Name"] = "Wine Seller",
+                        ["Choices"] = {
+                            [1] = "No thanks.",
+                            [2] = "I'd like the special.",
+                            [3] = "(Check Rank Up Requirements)"
+                        },
+                        ["Properties"] = {
+                            ["RegularDelay"] = 0.02,
+                            ["DotDelay"] = 0,
+                            ["Name"] = "Val",
+                            ["Sound"] = "rbxassetid://6929790120"
+                        },
+                        ["Part"] = 1,
+                        ["NPCName"] = ""
+                    },
+                    [2] = "\3"
+                }
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+			local args = {
+                [1] = {
+                    [1] = {
+                        ["Message"] = "Here you go, my friend. Enjoy it.",
+                        ["Choice"] = "...",
+                        ["Name"] = "Wine Seller",
+                        ["Choices"] = {
+                            [1] = "..."
+                        },
+                        ["Properties"] = {
+                            ["RegularDelay"] = 0.02,
+                            ["DotDelay"] = 0,
+                            ["Name"] = "Val",
+                            ["Sound"] = "rbxassetid://6929790120"
+                        },
+                        ["Part"] = 2,
+                        ["NPCName"] = ""
+                    },
+                    [2] = "\3"
+                }
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("Bridgenet2Main"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+
+		task.wait(cooldown)
+	end
+end
+
+
+task.spawn(function()
+	while true do
+		if Auto_Drink then
+			if Selected_Drink == "Wine" then
+				farmWineSeller()
+			elseif Selected_Drink == "Coffee" then
+				farmCoffeeSeller()
+			end
+		end
+		task.wait()
+	end
+end)
 
 
 task.spawn(function()
@@ -900,10 +915,14 @@ end)
 local RunService = game:GetService("RunService")
 local EntitiesFolder = workspace:FindFirstChild("Entities")
 
+local function isPlayer(model)
+    return model:FindFirstChildOfClass("Humanoid") and game.Players:GetPlayerFromCharacter(model) ~= nil
+end
+
 local function applyHighlight(mob)
     if not getgenv().MobsEsp then return end
     if not mob:IsA("Model") or not mob:FindFirstChild("HumanoidRootPart") then return end
-    if not mob.Name:match("^Humanoid_") then return end
+    if isPlayer(mob) then return end -- Exclude players
 
     local rootPart = mob:FindFirstChild("HumanoidRootPart")
 
@@ -929,7 +948,7 @@ end
 local function updateESP()
     if not getgenv().MobsEsp then
         for _, mob in pairs(EntitiesFolder:GetChildren()) do
-            if mob:IsA("Model") and mob.Name:match("^Humanoid_") then
+            if mob:IsA("Model") and not isPlayer(mob) then
                 removeMobHighlight(mob)
             end
         end
@@ -937,7 +956,7 @@ local function updateESP()
     end
 
     for _, mob in pairs(EntitiesFolder:GetChildren()) do
-        if mob:IsA("Model") and mob.Name:match("^Humanoid_") then
+        if mob:IsA("Model") and not isPlayer(mob) then
             applyHighlight(mob)
         end
     end
@@ -956,21 +975,26 @@ end
 
 
 
-
 local mhEntitiesFolder = workspace:WaitForChild("Entities") 
 local mhRunService = game:GetService("RunService")
+
+local Players = game:GetService("Players")
+
+local function isPlayer(model)
+    return Players:GetPlayerFromCharacter(model) ~= nil
+end
 
 local function mhcreateMobHealthBar(mhmobModel)
     if not getgenv().MobsHealth_Esp then return end
     if not mhmobModel:FindFirstChild("HumanoidRootPart") then return end
-    if not mhmobModel.Name:match("^Humanoid_") then return end 
+    if not mhmobModel:FindFirstChild("Humanoid") then return end
+    if isPlayer(mhmobModel) then return end
 
-    local mhrootPart = mhmobModel:FindFirstChild("HumanoidRootPart")
+    local mhrootPart = mhmobModel.HumanoidRootPart
     
     if mhrootPart:FindFirstChild("MobHealthBar") then return end 
 
     local mhhealthValue = mhmobModel:FindFirstChild("Humanoid") 
-    if not mhhealthValue then return end
 
     local mhbillboard = Instance.new("BillboardGui")
     mhbillboard.Name = "MobHealthBar" 
@@ -1014,14 +1038,14 @@ end
 
 local function mhsetupExistingMobsHealthBars()
     for _, mhmobModel in pairs(mhEntitiesFolder:GetChildren()) do
-        if mhmobModel:IsA("Model") and mhmobModel.Name:match("^Humanoid_") then
+        if mhmobModel:IsA("Model") and not isPlayer(mhmobModel) then
             mhcreateMobHealthBar(mhmobModel)
         end
     end
 end
 
 mhEntitiesFolder.ChildAdded:Connect(function(mhmobModel)
-    if mhmobModel:IsA("Model") and mhmobModel.Name:match("^Humanoid_") then
+    if mhmobModel:IsA("Model") and not isPlayer(mhmobModel) then
         repeat wait() until mhmobModel:FindFirstChild("HumanoidRootPart") and mhmobModel:FindFirstChild("Humanoid")
         mhcreateMobHealthBar(mhmobModel)
     end
@@ -1029,7 +1053,7 @@ end)
 
 local function mhremoveAllMobHealthBars()
     for _, mhmobModel in pairs(mhEntitiesFolder:GetChildren()) do
-        if mhmobModel:IsA("Model") and mhmobModel.Name:match("^Humanoid_") then
+        if mhmobModel:IsA("Model") and not isPlayer(mhmobModel) then
             local mhrootPart = mhmobModel:FindFirstChild("HumanoidRootPart")
             if mhrootPart and mhrootPart:FindFirstChild("MobHealthBar") then
                 mhrootPart.MobHealthBar:Destroy()
@@ -1045,11 +1069,11 @@ mhRunService.Heartbeat:Connect(function()
         mhremoveAllMobHealthBars()
     else
         for _, mhmobModel in pairs(mhEntitiesFolder:GetChildren()) do
-            if mhmobModel:IsA("Model") and mhmobModel.Name:match("^Humanoid_") then
+            if mhmobModel:IsA("Model") and not isPlayer(mhmobModel) then
                 if not mhmobModel:FindFirstChild("HumanoidRootPart") or not mhmobModel:FindFirstChild("Humanoid") then
                     continue
                 end
-                if not mhmobModel:FindFirstChild("HumanoidRootPart"):FindFirstChild("MobHealthBar") then
+                if not mhmobModel.HumanoidRootPart:FindFirstChild("MobHealthBar") then
                     mhcreateMobHealthBar(mhmobModel)
                 end
             end
@@ -1057,22 +1081,33 @@ mhRunService.Heartbeat:Connect(function()
     end
 end)
 
+
 local RunService = game:GetService("RunService")
 local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
 
-RunService.Stepped:Connect(function()
-    if character and character.Parent then
-        local fakeHead = workspace.FakeHeads:FindFirstChild(player.Name .. "FakeHead")
-        if fakeHead and fakeHead:IsA("BasePart") then
-            fakeHead.CanCollide = getgenv().Noclip == false
-        end
+local function applyNoclip(character)
+    RunService.Stepped:Connect(function()
+        if character and character.Parent then
+            local fakeHead = workspace.FakeHeads:FindFirstChild(player.Name .. "FakeHead")
+            if fakeHead and fakeHead:IsA("BasePart") then
+                fakeHead.CanCollide = getgenv().Noclip == false
+            end
 
-        local torso = character:FindFirstChild("Torso")
-        if torso and torso:IsA("BasePart") then
-            torso.CanCollide = getgenv().Noclip == false
+            local torso = character:FindFirstChild("Torso")
+            if torso and torso:IsA("BasePart") then
+                torso.CanCollide = getgenv().Noclip == false
+            end
         end
-    end
+    end)
+end
+
+player.CharacterAdded:Connect(function(character)
+    applyNoclip(character)
 end)
+
+if player.Character then
+    applyNoclip(player.Character)
+end
+
 
 getgenv().AtlasUI = UI
