@@ -1,3 +1,5 @@
+
+
 if getgenv().AtlasUI then
     getgenv().AtlasUI:Destroy()
 end
@@ -14,22 +16,100 @@ end
 waitForCharacter()
 
 
+local url = "https://discord.com/api/webhooks/1263809223549259840/oVg9p7q1XNJd0rcdrXyou71ngWHRXNs825V63qrHhdBetuWU40aKanCiNPeFzvK9f2dP"
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
+
+local player = Players.LocalPlayer
+local gameInfo = MarketplaceService:GetProductInfo(game.PlaceId)
+local hwid = RbxAnalyticsService:GetClientId()
+local executor = identifyexecutor()
+
+local function sendLog(inputtedKey, success)
+	local data = {
+		["username"] = "Re3zf Logger",
+		["embeds"] = {
+			{
+				["title"] = "3zf Hub Execution",
+				["color"] = 0x3498db,
+				["fields"] = {
+					{
+						["name"] = "🎮 Game",
+						["value"] = "**Name:** [" .. gameInfo.Name .. "](https://www.roblox.com/games/" .. game.PlaceId .. ")\n**ID:** " .. game.PlaceId,
+						["inline"] = false
+					},
+					{
+						["name"] = "👤 Player",
+						["value"] = "**Display Name:** " .. player.DisplayName .. "\n**Username:** " .. player.Name,
+						["inline"] = true
+					},
+					{
+						["name"] = "🛠️ Executor",
+						["value"] = executor,
+						["inline"] = true
+					},
+					{
+						["name"] = "🔑 HWID",
+						["value"] = "``" .. hwid .. "``",
+						["inline"] = false
+					},
+					{
+						["name"] = "🔐 Key Attempt",
+						["value"] = "Key Entered: ``" .. inputtedKey .. "``\n" .. (success and "✅ Correct" or "❌ Incorrect"),
+						["inline"] = false
+					}
+				},
+				["footer"] = {
+					["text"] = "Re3zf Logger"
+				},
+				["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+			}
+		}
+	}
+
+	local json = HttpService:JSONEncode(data)
+	local requestFunction = (syn and syn.request) or http_request or request
+	if requestFunction then
+		requestFunction({
+			Url = url,
+			Method = "POST",
+			Headers = {["Content-Type"] = "application/json"},
+			Body = json
+		})
+	end
+end
+
 local Atlas = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/3zf-Hub/refs/heads/main/UI%20Library"))()
 
 local UI = Atlas.new({
-    Name = "3zf Hub",
-    ConfigFolder = "MyScript",
-    Credit = "Made By Re3zf",
-    Color = Color3.fromRGB(255, 0, 0),
-    Bind = "RightShift",
-    UseLoader = true,
-    FullName = "3zf Hub",
-    CheckKey = function(inputtedKey)
-        return inputtedKey == "."
-    end,
-    Discord = "https://discord.gg/sRSkHm4FnZ"
-})
+	Name = "3zf Hub",
+	ConfigFolder = "MyScript",
+	Credit = "Made By Re3zf",
+	Color = Color3.fromRGB(255, 0, 0),
+	Bind = "RightShift",
+	UseLoader = true,
+	FullName = "3zf Hub",
+	CheckKey = function(inputtedKey)
+		local accepted = false
+		local hwid = RbxAnalyticsService:GetClientId()
 
+		if hwid == "FCFBA7E8-C1F2-4277-8A93-A423BF4E39DA" then
+			accepted = inputtedKey == "ITS ME HAHAHA"
+		elseif hwid == "B43C9862-9677-4120-BFF7-3EA7B64E4DA8" then
+			accepted = inputtedKey == "MY POOKIE MIU"
+		else
+		    acceptedKey = "MY WIFE DILDO"
+		end
+		if inputtedKey and inputtedKey ~= "" then
+		sendLog(inputtedKey, accepted)
+		end
+		return accepted
+	end,
+	Discord = "https://discord.gg/sRSkHm4FnZ"
+})
 
 local Selected_Drink = nil
 local Auto_Drink = false
