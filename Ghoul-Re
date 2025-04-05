@@ -1,5 +1,3 @@
-
-
 if getgenv().AtlasUI then
     getgenv().AtlasUI:Destroy()
 end
