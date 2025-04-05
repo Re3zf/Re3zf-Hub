@@ -84,7 +84,7 @@ local Atlas = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/3
 
 local UI = Atlas.new({
 	Name = "3zf Hub",
-	ConfigFolder = "MyScript",
+	ConfigFolder = "3zf Hub",
 	Credit = "Made By Re3zf",
 	Color = Color3.fromRGB(255, 0, 0),
 	Bind = "RightShift",
