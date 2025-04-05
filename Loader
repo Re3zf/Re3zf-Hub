@@ -1,19 +1,25 @@
-if (game.PlaceId == 91797414023830 or 6490954291) then
+if game.PlaceId == 91797414023830 or game.PlaceId == 6490954291 then
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/3zf-Hub/refs/heads/main/Ghoul-Re"))()
 else
 
-local Re3zf_Hub = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/3zf-Hub/refs/heads/main/UI%20Library"))()
+local atlas = loadstring(game:HttpGet("https://raw.githubusercontent.com/Re3zf/3zf-Hub/refs/heads/main/UI%20Library"))()
 
-local UI = Re3zf_Hub.new({
+local UI = atlas.new({
     Name = "Re3zf Hub",
-    ConfigFolder = "MyScript",
+    ConfigFolder = "3zf Hub",
     Credit = "Made By Re3zf",
     Color = Color3.fromRGB(255, 0, 0),
     Bind = "RightShift",
     UseLoader = true,
     FullName = "Re3zf Hub",
     CheckKey = function(inputtedKey)
-        return inputtedKey == "."
+        if game:GetService("RbxAnalyticsService"):GetClientId() == "FCFBA7E8-C1F2-4277-8A93-A423BF4E39DA" then
+			return inputtedKey == "ITS ME HAHAHA"
+			elseif game:GetService("RbxAnalyticsService"):GetClientId() == "B43C9862-9677-4120-BFF7-3EA7B64E4DA8" then
+			return inputtedKey == "MY POOKIE MIU"	
+			else
+			return inputtedKey == "MY WIFE DILDO"
+			end
     end,
     Discord = "https://discord.gg/sRSkHm4FnZ"
 })
